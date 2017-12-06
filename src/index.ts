@@ -93,6 +93,10 @@ if ((<any>window).ApplePaySession) {
 
       // details
       if (details) {
+        // if requestShipping == false, delete shippingOptions so shippingOptions won't show in Payment Sheet
+        if (options && options.requestShipping !== true) {
+          delete details.shippingOptions
+        }
         this.updatePaymentDetails(details);
         if (this.paymentRequest.shippingMethods && this.paymentRequest.shippingMethods.length) {
           this.shippingOption = this.convertShippingMethod(this.paymentRequest.shippingMethods[0]);
