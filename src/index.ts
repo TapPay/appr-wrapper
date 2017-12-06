@@ -225,17 +225,25 @@ if ((<any>window).ApplePaySession) {
       let shippingAddress = payment.shippingContact
         ? this.convertPaymentAddress(payment.shippingContact)
         : undefined;
+
       let billingAddress = payment.billingContact
         ? this.convertPaymentAddress(payment.billingContact)
         : undefined;
+
+      let shippingContact:any = payment.shippingContact || {};
+
+      let payerName = payment.billingContact
+        ? `${payment.billingContact.givenName} ${payment.billingContact.familyName}`
+        : undefined;
+
       let response = {
         details: {
           billingAddress:   billingAddress
         },
         methodName:       APPLE_PAY_JS_IDENTIFIER,
-        payerEmail:       payment.shippingContact.emailAddress,
-        payerName:        `${payment.billingContact.givenName} ${payment.billingContact.familyName}`,
-        payerPhone:       payment.shippingContact.phoneNumber,
+        payerEmail:       shippingContact.emailAddress,
+        payerName:        payerName,
+        payerPhone:       shippingContact.phoneNumber,
         shippingAddress:  shippingAddress,
         shippingOption:   this.shippingOption,
         applePayRaw:      payment,
