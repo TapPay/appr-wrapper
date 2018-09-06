@@ -384,6 +384,11 @@ if ((<any>window).ApplePaySession) {
       let shippingContact = e.shippingContact;
       this.shippingAddress = this.convertPaymentAddress(shippingContact);
 
+      // ApplePay will reset selected shippingOption, so here we reset shippingOption too
+      if (this.paymentRequest.shippingMethods && this.paymentRequest.shippingMethods.length) {
+        this.shippingOption = this.convertShippingMethod(this.paymentRequest.shippingMethods[0]);
+      }
+
       this['onshippingaddresschange']({
         updateWith: p => {
           Promise.resolve(p).then((details: PaymentDetails) => {
