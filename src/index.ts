@@ -93,6 +93,10 @@ if ((<any>window).ApplePaySession) {
 
       // details
       if (details) {
+        // if requestShipping == false, delete shippingOptions so shippingOptions won't show in Payment Sheet
+        if (options && options.requestShipping !== true) {
+          delete details.shippingOptions
+        }
         this.updatePaymentDetails(details);
         if (this.paymentRequest.shippingMethods && this.paymentRequest.shippingMethods.length) {
           this.shippingOption = this.convertShippingMethod(this.paymentRequest.shippingMethods[0]);
@@ -225,17 +229,25 @@ if ((<any>window).ApplePaySession) {
       let shippingAddress = payment.shippingContact
         ? this.convertPaymentAddress(payment.shippingContact)
         : undefined;
+
       let billingAddress = payment.billingContact
         ? this.convertPaymentAddress(payment.billingContact)
         : undefined;
+
+      let shippingContact:any = payment.shippingContact || {};
+
+      let payerName = payment.billingContact
+        ? `${payment.billingContact.givenName} ${payment.billingContact.familyName}`
+        : undefined;
+
       let response = {
         details: {
           billingAddress:   billingAddress
         },
         methodName:       APPLE_PAY_JS_IDENTIFIER,
-        payerEmail:       payment.shippingContact.emailAddress,
-        payerName:        `${payment.billingContact.givenName} ${payment.billingContact.familyName}`,
-        payerPhone:       payment.shippingContact.phoneNumber,
+        payerEmail:       shippingContact.emailAddress,
+        payerName:        payerName,
+        payerPhone:       shippingContact.phoneNumber,
         shippingAddress:  shippingAddress,
         shippingOption:   this.shippingOption,
         applePayRaw:      payment,
@@ -371,6 +383,11 @@ if ((<any>window).ApplePaySession) {
       // https://developer.apple.com/reference/applepayjs/applepaysession/1778009-onshippingcontactselected
       let shippingContact = e.shippingContact;
       this.shippingAddress = this.convertPaymentAddress(shippingContact);
+
+      // ApplePay will reset selected shippingOption, so here we reset shippingOption too
+      if (this.paymentRequest.shippingMethods && this.paymentRequest.shippingMethods.length) {
+        this.shippingOption = this.convertShippingMethod(this.paymentRequest.shippingMethods[0]);
+      }
 
       this['onshippingaddresschange']({
         updateWith: p => {
